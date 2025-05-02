@@ -14,6 +14,7 @@ public class SeatRepository {
     }
     public List<Seat> getSeats() {
         return seats;
+
     }
     public Seat getSeat(int seatNumber) {
         return seats.get(seatNumber - 1); // Ghế số 1 có chỉ số 0 trong danh sách
