@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Movie Ticket System</title>
+</head>
+<body>
+<h1>Chọn Phim: <span th:text="${movie.title}"></span></h1>
+<h3>Thể loại: <span th:text="${movie.genre}"></span></h3>
+<h3>Giá vé: <span th:text="${movie.ticketPrice}"></span></h3>
+<h2>Danh sách ghế</h2>
+<form action="/reserve" method="post">
+    <table>
+        <tr>
+            <th>Ghế</th>
+            <th>Tình trạng</th>
+            <th>Đặt vé</th>
+        </tr>
+        <tr th:each="seat : ${seats}">
+            <td th:text="${seat.seatNumber}"></td>
+            <td>
+                <span th:if="${seat.isAvailable()}">Trống</span>
+                <span th:if="${not seat.isAvailable()}">Đã bán</span>
+            </td>
+            <td>
+                <button type="submit" th:disabled="${not seat.isAvailable()}"
+                        th:value="${seat.seatNumber}">Đặt vé</button>
+            </td>
+        </tr>
+    </table>
+</form>
+<div th:text="${message}"></div>
+</body>
+</html>
