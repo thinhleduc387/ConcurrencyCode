@@ -11,6 +11,7 @@ public class SeatRepository {
         for (int i = 1; i <= numberOfSeats; i++) {
             seats.add(new Seat(i));
         }
+
     }
     public List<Seat> getSeats() {
         return seats;
