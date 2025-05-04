@@ -1,25 +1,23 @@
 package com.example.ConcurrentMovieTicketBookingSystem.repository;
 
 import com.example.ConcurrentMovieTicketBookingSystem.model.Seat;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class SeatRepository {
-    private List<Seat> seats = new ArrayList<>();
+    private ConcurrentHashMap<Integer, Seat> seats = new ConcurrentHashMap<>();
+
     public SeatRepository(int numberOfSeats) {
         for (int i = 1; i <= numberOfSeats; i++) {
-            seats.add(new Seat(i));
+            seats.put(i, new Seat(i));
         }
-
     }
 
-
-    public List<Seat> getSeats() {
-        return seats;
-
-    }
     public Seat getSeat(int seatNumber) {
-        return seats.get(seatNumber - 1); // Ghế số 1 có chỉ số 0 trong danh sách
+        return seats.get(seatNumber);
+    }
+
+    public Collection<Seat> getSeats() {
+        return seats.values();
     }
 }

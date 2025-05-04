@@ -2,32 +2,104 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Movie Ticket System</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 50%;
+            margin: 20px 0;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .message {
+            color: green;
+            font-weight: bold;
+        }
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        // Hàm làm mới danh sách ghế định kỳ
+        function refreshSeats() {
+            fetch('/seats')
+                .then(response => response.json())
+                .then(data => {
+                    const tableBody = document.querySelector('#seatTable tbody');
+                    tableBody.innerHTML = ''; // Xóa nội dung cũ
+
+                    data.forEach(seat => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${seat.seatNumber}</td>
+                            <td>${seat.available ? 'Trống' : 'Đã bán'}</td>
+                            <td>
+                                ${seat.available ?
+                            `<form action="/reserve" method="post">
+                                        <input type="hidden" name="seatNumber" value="${seat.seatNumber}"/>
+                                        <button type="submit">Đặt vé</button>
+                                    </form>` :
+                            `<form action="/cancel" method="post">
+                                        <input type="hidden" name="seatNumber" value="${seat.seatNumber}"/>
+                                        <button type="submit">Hủy vé</button>
+                                    </form>`
+                        }
+                            </td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                })
+                .catch(error => console.error('Lỗi khi làm mới ghế:', error));
+        }
+
+        // Làm mới ghế mỗi 1 giây
+        setInterval(refreshSeats, 1000);
+
+        // Gọi ngay lần đầu khi trang tải
+        window.onload = refreshSeats;
+    </script>
 </head>
 <body>
 <h1>Chọn Phim: <span th:text="${movie.title}"></span></h1>
 <h3>Thể loại: <span th:text="${movie.genre}"></span></h3>
 <h3>Giá vé: <span th:text="${movie.ticketPrice}"></span></h3>
 <h2>Danh sách ghế</h2>
-<form action="/reserve" method="post">
-    <table>
-        <tr>
-            <th>Ghế</th>
-            <th>Tình trạng</th>
-            <th>Đặt vé</th>
-        </tr>
-        <tr th:each="seat : ${seats}">
-            <td th:text="${seat.seatNumber}"></td>
-            <td>
-                <span th:if="${seat.isAvailable()}">Trống</span>
-                <span th:if="${not seat.isAvailable()}">Đã bán</span>
-            </td>
-            <td>
-                <button type="submit" th:disabled="${not seat.isAvailable()}"
-                        th:value="${seat.seatNumber}">Đặt vé</button>
-            </td>
-        </tr>
-    </table>
-</form>
-<div th:text="${message}"></div>
+
+<table id="seatTable">
+    <thead>
+    <tr>
+        <th>Ghế</th>
+        <th>Tình trạng</th>
+        <th>Hành động</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="seat: ${seats}">
+        <td th:text="${seat.seatNumber}"></td>
+        <td>
+            <span th:if="${seat.isAvailable()}">Trống</span>
+            <span th:unless="${seat.isAvailable()}">Đã bán</span>
+        </td>
+        <td>
+            <form th:if="${seat.isAvailable()}" action="/reserve" method="post">
+                <input type="hidden" name="seatNumber" th:value="${seat.seatNumber}"/>
+                <button type="submit">Đặt vé</button>
+            </form>
+            <form th:unless="${seat.isAvailable()}" action="/cancel" method="post">
+                <input type="hidden" name="seatNumber" th:value="${seat.seatNumber}"/>
+                <button type="submit">Hủy vé</button>
+            </form>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+<div th:if="${message}" th:class="${error != null and error} ? 'error' : 'message'" th:text="${message}"></div>
 </body>
 </html>
